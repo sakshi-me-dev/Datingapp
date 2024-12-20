@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Test/testting_page.dart';
+import 'SwipeScreen/swipe_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,9 +15,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: TestingScreen(),
+      home: SwipeScreen(),
     );
   }
 }

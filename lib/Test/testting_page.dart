@@ -12,8 +12,8 @@ class TestingScreen extends StatefulWidget {
 class _TestingScreenState extends State<TestingScreen> {
   List<SwipeItem> _swipeItems = [];
   late MatchEngine _matchEngine;
-  bool _isLiked = false;
-  bool _isNoped = false;
+  final ValueNotifier<bool> _isLiked = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _isNoped = ValueNotifier<bool>(false);
 
   final List<Map<String, dynamic>> _data = [
     {"name": "Daisy", "age": "27", "image": "assets/images/girls.jpg"},
@@ -32,12 +32,10 @@ class _TestingScreenState extends State<TestingScreen> {
       _swipeItems.add(SwipeItem(
         content: item,
         likeAction: () {
-          setState(() {
-            _isLiked = true;
-            _isNoped = false;
-          });
+          _isLiked.value = true;
+          _isNoped.value = false;
           Future.delayed(const Duration(milliseconds: 500), () {
-            setState(() => _isLiked = false);
+            _isLiked.value = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text("You liked ${item['name']}!"),
@@ -46,12 +44,10 @@ class _TestingScreenState extends State<TestingScreen> {
           ));
         },
         nopeAction: () {
-          setState(() {
-            _isNoped = true;
-            _isLiked = false;
-          });
+          _isNoped.value = true;
+          _isLiked.value = false;
           Future.delayed(const Duration(milliseconds: 500), () {
-            setState(() => _isNoped = false);
+            _isNoped.value = false;
           });
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text("You noped ${item['name']}!"),
@@ -183,36 +179,46 @@ class _TestingScreenState extends State<TestingScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                AnimatedScale(
-                  scale: _isNoped ? 1.2 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.red,
-                    child: IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white),
-                      iconSize: 30,
-                      onPressed: () {
-                        _matchEngine.currentItem?.nope();
-                      },
-                    ),
-                  ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: _isNoped,
+                  builder: (context, isNopedValue, child) {
+                    return AnimatedScale(
+                      scale: isNopedValue ? 1.2 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: CircleAvatar(
+                        radius: 35,
+                        backgroundColor: Colors.red,
+                        child: IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          iconSize: 30,
+                          onPressed: () {
+                            _matchEngine.currentItem?.nope();
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(width: 30),
-                AnimatedScale(
-                  scale: _isLiked ? 1.2 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.green,
-                    child: IconButton(
-                      icon: const Icon(Icons.favorite, color: Colors.white),
-                      iconSize: 30,
-                      onPressed: () {
-                        _matchEngine.currentItem?.like();
-                      },
-                    ),
-                  ),
+                ValueListenableBuilder<bool>(
+                  valueListenable: _isLiked,
+                  builder: (context, isLikedValue, child) {
+                    return AnimatedScale(
+                      scale: isLikedValue ? 1.2 : 1.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: CircleAvatar(
+                        radius: 35,
+                        backgroundColor: Colors.green,
+                        child: IconButton(
+                          icon: const Icon(Icons.favorite, color: Colors.white),
+                          iconSize: 30,
+                          onPressed: () {
+                            _matchEngine.currentItem?.like();
+                          },
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ],
             ),
